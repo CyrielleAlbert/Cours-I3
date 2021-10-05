@@ -1,5 +1,9 @@
 <!DOCTYPE SaveWorkspaceState>
 <SaveWorkspaceState>
-    <Windows/>
+    <Windows>
+        <Layout view="layout" y1="20" width="1536" geom="1,0,0,39,51,1536,832,1920,1080" cell="cell_1" height="832" lib="PatchAntenna_lib" x1="38"/>
+        <Substrate y1="20" width="1536" geom="1,0,1,39,51,1536,832,1920,1080" height="832" file="substrate1" lib="PatchAntenna_lib" x1="38"/>
+        <DDS name="EM_FarFieldCut.dds"/>
+    </Windows>
     <MainWindowTab tab="1"/>
 </SaveWorkspaceState>
