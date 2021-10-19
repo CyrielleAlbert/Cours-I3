@@ -1,0 +1,338 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>DM1-kalman</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-10-18"><meta name="DC.source" content="DM1-kalman.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Simulation de x(t)- la chute de la capsule-, v(t) - le bruit - et y(t) le signal capt&eacute; par le radar.</a></li><li><a href="#3">Filtrage du bruit</a></li><li><a href="#4">Calcul de l'instant t_plouf pour lequel la capsule touchera l'eau</a></li><li><a href="#5">MONTE CARLO - R&eacute;p&eacute;tition de la simulation avec Mont&eacute;-Carlo et visualisation de l'&eacute;volution de t_plouf</a></li><li><a href="#6">Calcul de l'esp&eacute;rence math&eacute;matique et de la variance des t_ploufs</a></li><li><a href="#7">Deuxi&egrave;me approche : M&eacute;thode lourde</a></li><li><a href="#8">Deuxi&egrave;me approche : M&eacute;thode lourde +NMC</a></li><li><a href="#9">Deuxi&egrave;me approche : R&eacute;cursivit&eacute;</a></li></ul></div><pre class="codeinput"><span class="comment">% Simulation de la situation Apollo</span>
+</pre><pre class="codeoutput error">Error using evalin
+Undefined function or variable 'DM1'.
+</pre><h2 id="2">Simulation de x(t)- la chute de la capsule-, v(t) - le bruit - et y(t) le signal capt&eacute; par le radar.</h2><pre class="codeinput">a = -1/2*9.81 ; v0 = 100; x0 = 10000; K = 1000;
+t = (0:0.1:(K-1)*0.1)';
+
+v_t = 1000*randn(K,1);
+x_t = a*t.^2 + v0*t+x0;
+y_t = x_t + v_t;
+</pre><h2 id="3">Filtrage du bruit</h2><pre class="codeinput">M = [t.^2 , t , ones(size(t))];
+theta = M\y_t;
+x_estim = M*theta; <span class="comment">%filtrage optimal du bruit</span>
+
+figure(1),clf,plot(t,[y_t x_t x_estim]),xlabel(<span class="string">"t en s"</span>),ylabel(<span class="string">"chutes en m"</span>)
+legend(<span class="string">"Chute mesur&eacute;e"</span>,<span class="string">"Mod&egrave;le de la chute"</span>,<span class="string">"Chute estim&eacute;e"</span>),title(<span class="string">"Repr&eacute;sentation de la chute libre du module"</span>)
+</pre><h2 id="4">Calcul de l'instant t_plouf pour lequel la capsule touchera l'eau</h2><pre class="codeinput">racines = roots(theta);
+t_plouf = racines(racines&gt;0);
+</pre><h2 id="5">MONTE CARLO - R&eacute;p&eacute;tition de la simulation avec Mont&eacute;-Carlo et visualisation de l'&eacute;volution de t_plouf</h2><pre class="codeinput">NMC = 10000;
+t_ploufs = zeros(NMC,1);
+a_estim = zeros(NMC,1);
+vo_estim = zeros(NMC,1);
+x0_estim = zeros(NMC,1);
+
+<span class="keyword">for</span> k=1:NMC
+    k
+    v_t = 1000*randn(K,1);
+    x_t = a*t.^2 + v0*t+x0;
+    y_t = x_t + v_t;
+    theta = M\y_t;
+    a_estim(k) = theta(1);
+    vo_estim(k) = theta(2);
+    x0_estim(k) = theta(3);
+    x_estim = M*theta; <span class="comment">%filtrage du bruit</span>
+    racines = roots(theta);
+    t_plouf = racines(racines&gt;0);
+    t_ploufs(k) = t_plouf;
+<span class="keyword">end</span>
+</pre><h2 id="6">Calcul de l'esp&eacute;rence math&eacute;matique et de la variance des t_ploufs</h2><pre class="codeinput">esperance_t_ploufs = mean(t_ploufs);
+esperance_a_estim = mean(a_estim);
+esperance_v0_estim = mean(vo_estim);
+esperance_x0_estim = mean(x0_estim);
+
+variance_t_ploufs = var(t_ploufs);
+variance_a_estim = var(a_estim);
+variance_vo_estim = var(vo_estim);
+variance_x0_estim = var(x0_estim);
+
+
+k = (1:NMC)';
+figure(2),clf,
+subplot(411),plot(k,t_ploufs,k,ones(NMC,1)*esperance_t_ploufs)
+title(<span class="string">"M&eacute;thode MONTE CARLO - Evolution de t_{plouf}"</span>),xlabel(<span class="string">"num&eacute;ro de l'it&eacute;ration k"</span>),ylabel(<span class="string">"t_{plouf}"</span>),legend(<span class="string">"t_{plouf} average"</span>,<span class="string">"t_{plouf} en fonction de NMC"</span>)
+subplot(412),plot(k,a_estim,k,ones(NMC,1)*esperance_a_estim)
+title(<span class="string">"M&eacute;thode MONTE CARLO - Evolution de a_{estim}"</span>),xlabel(<span class="string">"num&eacute;ro de l'it&eacute;ration k"</span>),ylabel(<span class="string">"a_{estim}"</span>),legend(<span class="string">"a average"</span>,<span class="string">"a en fonction de NMC"</span>)
+subplot(413),plot(k,vo_estim,k,ones(NMC,1)*esperance_v0_estim)
+title(<span class="string">"M&eacute;thode MONTE CARLO - Evolution de vo_{estim}"</span>),xlabel(<span class="string">"num&eacute;ro de l'it&eacute;ration k"</span>),ylabel(<span class="string">"vo_{estim}"</span>),legend(<span class="string">"v0 average"</span>,<span class="string">"v0 en fonction de NMC"</span>)
+subplot(414),plot(k,x0_estim,k,ones(NMC,1)*esperance_x0_estim)
+title(<span class="string">"M&eacute;thode MONTE CARLO - Evolution de x0_{estim}"</span>),xlabel(<span class="string">"num&eacute;ro de l'it&eacute;ration k"</span>),ylabel(<span class="string">"x0_{estim}"</span>),legend(<span class="string">"x0 average"</span>,<span class="string">"x0 en fonction de NMC"</span>)
+</pre><h2 id="7">Deuxi&egrave;me approche : M&eacute;thode lourde</h2><pre class="codeinput">v_t = 1000*randn(K,1);
+x_t = a*t.^2 + v0*t+x0;
+y_t = x_t + v_t;
+t_ploufs_2 = zeros(K-2,1);
+nb_ech_vect = (3:1:K);
+
+<span class="keyword">for</span> nb_ech=3:K
+    t_i = t(1:nb_ech);
+    M_i = [t_i.^2, t_i, ones(size(t_i))];
+    theta_i = M_i\y_t(1:nb_ech);
+    x_estim_i = M_i*theta_i;
+    racines_i = roots(theta_i);
+    t_plouf = racines_i(racines_i&gt;0);
+    <span class="keyword">if</span> imag(t_plouf)== 0
+        t_ploufs_2(nb_ech-2) = t_plouf;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+t_k = nb_ech_vect.*0.1;
+figure(3), clf, plot(t_k,t_ploufs_2, <span class="string">'-o'</span>),ylim([0,200])
+title(<span class="string">"Evolution de t_{plouf} en fonction de la quantit&eacute; de donn&eacute;es pour l'estimation"</span>)
+xlabel(<span class="string">"temps t_k en s"</span>),ylabel(<span class="string">"t_plouf en s"</span>)
+</pre><h2 id="8">Deuxi&egrave;me approche : M&eacute;thode lourde +NMC</h2><pre class="codeinput">v_t = 1000*randn(K,1);
+x_t = a*t.^2 + v0*t+x0;
+y_t = x_t + v_t;
+
+t_ploufs_2 = zeros(K-2,NMC);
+nb_ech_vect = (3:1:K);
+esperances = zeros(NMC,1);
+variances = zeros(NMC,1);
+
+<span class="keyword">for</span> i=1:NMC
+    <span class="keyword">for</span> nb_ech=3:K
+        t_i = t(1:nb_ech);
+        M_i = [t_i.^2, t_i, ones(size(t_i))];
+        theta_i = M_i\y_t(1:nb_ech);
+        x_estim_i = M_i*theta_i;
+        racines_i = roots(theta_i);
+        t_plouf = racines_i(racines_i&gt;0);
+        <span class="keyword">if</span> imag(t_plouf)== 0
+            t_ploufs_2(nb_ech-2,i) = t_plouf;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    esperances(i) = mean(t_ploufs_2(:,i));
+    variances(i) = var(t_ploufs_2(:,i));
+<span class="keyword">end</span>
+t_k = nb_ech_vect.*0.1;
+figure(4), clf, plot(t_k,t_ploufs_2(:,1), <span class="string">'-o'</span>),ylim([0,200])
+title(<span class="string">"Evolution de t_{plouf} en fonction de la quantit&eacute; de donn&eacute;es pour l'estimation"</span>)
+xlabel(<span class="string">"temps t_k en s"</span>),ylabel(<span class="string">"t_plouf en s"</span>)
+</pre><h2 id="9">Deuxi&egrave;me approche : R&eacute;cursivit&eacute;</h2><pre class="codeinput">g = 9.81;a = -1/2*g; v0 = 100; x0 = 10000; K = 1000;
+
+t = (0:0.1:(K-1)*0.1)';
+
+x_t = a*t.^2 + v0*t+x0;
+x2_t = -g * t+v0;
+x2_point_t = 0*t + -g;
+v_t = 1000*randn(K,1);
+
+<span class="comment">%Equation  d'&eacute;tat</span>
+A = [0 1;0 0];
+X_t = [x_t'; x2_t'];
+X_point_t = A*X_t + [0; -g];
+
+<span class="comment">%Equation d'observation</span>
+C = [1 0];
+Y_t = C* [x_t'; x2_t'] ;
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% Simulation de la situation Apollo
+%% Simulation de x(t)- la chute de la capsule-, v(t) - le bruit - et y(t) le signal capté par le radar.
+a = -1/2*9.81 ; v0 = 100; x0 = 10000; K = 1000;
+t = (0:0.1:(K-1)*0.1)'; 
+
+v_t = 1000*randn(K,1);
+x_t = a*t.^2 + v0*t+x0;
+y_t = x_t + v_t;
+%% Filtrage du bruit
+
+M = [t.^2 , t , ones(size(t))];
+theta = M\y_t;
+x_estim = M*theta; %filtrage optimal du bruit
+
+figure(1),clf,plot(t,[y_t x_t x_estim]),xlabel("t en s"),ylabel("chutes en m")
+legend("Chute mesurée","Modèle de la chute","Chute estimée"),title("Représentation de la chute libre du module")
+%% Calcul de l'instant t_plouf pour lequel la capsule touchera l'eau
+racines = roots(theta);
+t_plouf = racines(racines>0);
+
+
+%% MONTE CARLO - Répétition de la simulation avec Monté-Carlo et visualisation de l'évolution de t_plouf
+
+NMC = 10000;
+t_ploufs = zeros(NMC,1);
+a_estim = zeros(NMC,1);
+vo_estim = zeros(NMC,1);
+x0_estim = zeros(NMC,1);
+
+for k=1:NMC
+    k
+    v_t = 1000*randn(K,1);
+    x_t = a*t.^2 + v0*t+x0;
+    y_t = x_t + v_t;
+    theta = M\y_t;
+    a_estim(k) = theta(1);
+    vo_estim(k) = theta(2);
+    x0_estim(k) = theta(3);
+    x_estim = M*theta; %filtrage du bruit
+    racines = roots(theta);
+    t_plouf = racines(racines>0);
+    t_ploufs(k) = t_plouf;
+end
+%% Calcul de l'espérence mathématique et de la variance des t_ploufs
+esperance_t_ploufs = mean(t_ploufs);
+esperance_a_estim = mean(a_estim);
+esperance_v0_estim = mean(vo_estim);
+esperance_x0_estim = mean(x0_estim);
+
+variance_t_ploufs = var(t_ploufs);
+variance_a_estim = var(a_estim);
+variance_vo_estim = var(vo_estim);
+variance_x0_estim = var(x0_estim);
+
+
+k = (1:NMC)';
+figure(2),clf,
+subplot(411),plot(k,t_ploufs,k,ones(NMC,1)*esperance_t_ploufs)
+title("Méthode MONTE CARLO - Evolution de t_{plouf}"),xlabel("numéro de l'itération k"),ylabel("t_{plouf}"),legend("t_{plouf} average","t_{plouf} en fonction de NMC")
+subplot(412),plot(k,a_estim,k,ones(NMC,1)*esperance_a_estim)
+title("Méthode MONTE CARLO - Evolution de a_{estim}"),xlabel("numéro de l'itération k"),ylabel("a_{estim}"),legend("a average","a en fonction de NMC")
+subplot(413),plot(k,vo_estim,k,ones(NMC,1)*esperance_v0_estim)
+title("Méthode MONTE CARLO - Evolution de vo_{estim}"),xlabel("numéro de l'itération k"),ylabel("vo_{estim}"),legend("v0 average","v0 en fonction de NMC")
+subplot(414),plot(k,x0_estim,k,ones(NMC,1)*esperance_x0_estim)
+title("Méthode MONTE CARLO - Evolution de x0_{estim}"),xlabel("numéro de l'itération k"),ylabel("x0_{estim}"),legend("x0 average","x0 en fonction de NMC")
+
+
+
+
+%% Deuxième approche : Méthode lourde 
+
+v_t = 1000*randn(K,1);
+x_t = a*t.^2 + v0*t+x0;
+y_t = x_t + v_t;
+t_ploufs_2 = zeros(K-2,1);
+nb_ech_vect = (3:1:K);
+
+for nb_ech=3:K
+    t_i = t(1:nb_ech);
+    M_i = [t_i.^2, t_i, ones(size(t_i))];
+    theta_i = M_i\y_t(1:nb_ech);
+    x_estim_i = M_i*theta_i;
+    racines_i = roots(theta_i);
+    t_plouf = racines_i(racines_i>0);
+    if imag(t_plouf)== 0
+        t_ploufs_2(nb_ech-2) = t_plouf;
+    end
+end
+t_k = nb_ech_vect.*0.1;
+figure(3), clf, plot(t_k,t_ploufs_2, '-o'),ylim([0,200])
+title("Evolution de t_{plouf} en fonction de la quantité de données pour l'estimation")
+xlabel("temps t_k en s"),ylabel("t_plouf en s")
+%% Deuxième approche : Méthode lourde +NMC
+
+v_t = 1000*randn(K,1);
+x_t = a*t.^2 + v0*t+x0;
+y_t = x_t + v_t;
+
+t_ploufs_2 = zeros(K-2,NMC);
+nb_ech_vect = (3:1:K);
+esperances = zeros(NMC,1);
+variances = zeros(NMC,1);
+
+for i=1:NMC
+    for nb_ech=3:K
+        t_i = t(1:nb_ech);
+        M_i = [t_i.^2, t_i, ones(size(t_i))];
+        theta_i = M_i\y_t(1:nb_ech);
+        x_estim_i = M_i*theta_i;
+        racines_i = roots(theta_i);
+        t_plouf = racines_i(racines_i>0);
+        if imag(t_plouf)== 0
+            t_ploufs_2(nb_ech-2,i) = t_plouf;
+        end
+    end
+    esperances(i) = mean(t_ploufs_2(:,i));
+    variances(i) = var(t_ploufs_2(:,i));
+end
+t_k = nb_ech_vect.*0.1;
+figure(4), clf, plot(t_k,t_ploufs_2(:,1), '-o'),ylim([0,200])
+title("Evolution de t_{plouf} en fonction de la quantité de données pour l'estimation")
+xlabel("temps t_k en s"),ylabel("t_plouf en s")
+%% Deuxième approche : Récursivité
+g = 9.81;a = -1/2*g; v0 = 100; x0 = 10000; K = 1000;
+
+t = (0:0.1:(K-1)*0.1)'; 
+
+x_t = a*t.^2 + v0*t+x0;
+x2_t = -g * t+v0;
+x2_point_t = 0*t + -g;
+v_t = 1000*randn(K,1);
+
+%Equation  d'état
+A = [0 1;0 0];
+X_t = [x_t'; x2_t'];
+X_point_t = A*X_t + [0; -g];
+
+%Equation d'observation 
+C = [1 0];
+Y_t = C* [x_t'; x2_t'] ;
+
+
+##### SOURCE END #####
+--></body></html>
