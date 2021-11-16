@@ -19,7 +19,8 @@ plot(d,[corr1_,corr2_+100,corr3_+200])
 legend("PRN1","PRN2","PRN3")
 
 % Observations de pic plus importants sur la corrélation entre PRN3 et le
-% signal 1 donc le signal 1 provient du satellite 1
+% signal 1 donc le signal 1 provient du satellite 1 avec décallage de 500
+% chips
 subplot(212)
 corr1_2 = xcorr(PRN1,incoming_signal_2);
 corr2_2 = xcorr(PRN2,incoming_signal_2);
@@ -28,6 +29,7 @@ corr3_2 = xcorr(PRN3,incoming_signal_2);
 plot(d,[corr1_2,corr2_2+100,corr3_2+200])
 legend("PRN1","PRN2","PRN3")
 % Observations de pic plus importants sur la corrélation entre PRN2 et le
-% signal 2 donc le signal 2 provient du satellite 2
+% signal 2 donc le signal 2 provient du satellite 2 avec un décallage de
+% 116 chips
 
 %Calculer la position D sachant que A = 45 000km
