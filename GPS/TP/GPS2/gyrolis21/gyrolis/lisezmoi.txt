@@ -1,0 +1,8 @@
+Logiciel Gyrolis 2.1
+
+Installer Gyrolis : copier sous un répertoire de votre choix :
+- l'application gyrolis.exe
+- les répertoires bin et lib (et ses sous-répertoires)
+
+Lancer Gyrolis : double cliquer gyrolis.bat depuis l'explorateur
+Windows ou bien créer un raccourci vers ce programme batch.

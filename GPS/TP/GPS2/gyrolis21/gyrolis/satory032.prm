@@ -1,0 +1,9 @@
+OFFSET_GYRO (°/s) 0.03
+PAS (m) 0.1954
+TX (m) -0.01
+TY (m) 0
+sqrtQmod_pos (m) 0.32
+sqrtQmod_rot (°) 0
+sqrtQgyro (°/s) 0.0044
+sqrtQgps (m) 5
+sqrtQdgps (m) 0.8
