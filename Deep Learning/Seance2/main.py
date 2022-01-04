@@ -82,10 +82,10 @@ def baseline_model(initializer,activation):
     model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
     return model
     # build the model
-model = baseline_model('glorot_uniform','sigmoid')
+#model = baseline_model('glorot_uniform','sigmoid')
 
 # build the model
-#model = CNN_model()
+model = CNN_model()
 model.summary()
 
 # Fit the model
@@ -96,7 +96,7 @@ NAME = 'glorot_uniform_init_sigmoid_activation'+ datetime.datetime.now().strftim
 tensorboard = TensorBoard(log_dir="MLP\\{}".format(NAME), histogram_freq=1)
 
 ## Entraînement du modèle à completer
-history = model.fit(X_train,y_train, validation_data=(X_val, y_val), epochs=N_epochs, batch_size=Batch_size,callbacks=[tensorboard_callback])
+history = model.fit(X_train,y_train, validation_data=(X_val, y_val), epochs=N_epochs, batch_size=Batch_size,callbacks=[tensorboard])
 print("Duree entrainement : %.2f s" %
       (timeit.default_timer() - start_time))
 
