@@ -42,7 +42,7 @@ def create_dataset(dataset, look_back=1):
     return np.array(dataX), np.array(dataY)
 
 # Reshape into X=t-N, ..., t-1, t and Y=t+1
-look_back      = 16
+look_back      = 1000
 trainX, trainY = create_dataset(train, look_back)
 testX, testY   = create_dataset(test, look_back)
 trainX = np.reshape(trainX, (trainX.shape[0], trainX.shape[1], 1))
@@ -63,7 +63,7 @@ model.compile(loss='mse', optimizer='adam')
 model.summary()
 
 # Fit the model
-history = model.fit(trainX, trainY, epochs=100, batch_size=32, shuffle=True)
+history = model.fit(trainX, trainY, epochs=2, batch_size=trainX.shape[0], shuffle=True)
 # Plot performances
 plt.figure()
 plt.plot(history.history['loss'])

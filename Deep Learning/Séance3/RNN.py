@@ -43,7 +43,7 @@ def create_dataset(dataset, look_back=1):
     return np.array(dataX), np.array(dataY)
 
 # Reshape into X=t-N, ..., t-1, t and Y=t+1
-look_back      = 16
+look_back      = 1000
 trainX, trainY = create_dataset(train, look_back)
 testX, testY   = create_dataset(test, look_back)
 trainX = np.reshape(trainX, (trainX.shape[0], trainX.shape[1], 1))
@@ -61,15 +61,15 @@ features = trainX.shape[2]
 # Create and fit RNN model
 model = Sequential()
 
-model.add(SimpleRNN(units=6, activation='tanh',input_shape=(time_step,features)))
+model.add(SimpleRNN(units=6, activation='tanh',input_shape=(time_step,features),name="SimpleRNN_1"))
 
-model.add(Dense(1,activation='linear'))
+model.add(Dense(1,activation='linear',name="Dense_1"))
 
 model.compile(loss="mse",optimizer="adam")
 model.summary()
 
 ## Fit the model
-history = model.fit(trainX, trainY,epochs=100,shuffle=True,batch_size=32)
+history = model.fit(trainX, trainY,epochs=2,shuffle=True,batch_size=batchsize)
 ## Plot performances
 plt.figure()
 plt.plot(history.history['loss'])
