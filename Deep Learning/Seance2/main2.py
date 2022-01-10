@@ -47,7 +47,7 @@ def baseline_model(initializer, activation):
     return model
 
 # build the model
-initializer = 'normal'
+initializer = 'glorot_uniform'
 activation = 'sigmoid'
 model = baseline_model(initializer, activation)
 model.summary()
@@ -57,7 +57,7 @@ N_epochs = 10
 Batch_size = 32
 NAME = initializer + '_' + activation + '_'\
        + datetime.datetime.now().strftime("%d_%m_%Y-%H_%M_%S") # NEW FILE NAME FOR EACH TRAINING
-tensorboard = TensorBoard(log_dir="MLP/{}".format(NAME), histogram_freq=1)
+tensorboard = TensorBoard(log_dir="MLP/{}".format(NAME.encode('utf-8')), histogram_freq=1)
 model.fit(X_train, y_train, validation_data=(X_val, y_val),
           epochs=N_epochs, batch_size=Batch_size,callbacks=[tensorboard])
 
